@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Оқушыларды интерактивті бағалау</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+:root{--bg:#f4f8f6;--card:#fff;--ink:#17332e;--mut:#5d7a74;--line:#d5e3df;--teal:#1b8a85;--teal2:#e1f3f1;--r:#e5484d;--o:#f08a24;--y:#f2c230;--g:#2fa866;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:light}}
+*{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;font-size:18px;line-height:1.4}
+.wrap{max-width:1200px;margin:0 auto;padding:16px}
+h1{font-size:clamp(24px,4.5vw,44px);margin:8px 0;letter-spacing:.02em;text-align:center;color:var(--teal)}
+.sub{text-align:center;color:var(--mut);max-width:760px;margin:0 auto 18px}
+.banner{background:#fff7e0;border:1px solid #ecd98e;border-radius:12px;padding:10px 14px;font-size:15px;margin-bottom:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:18px}
+.grid{display:grid;gap:16px}
+.g3{grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+.top{display:grid;gap:16px;grid-template-columns:minmax(260px,320px) 1fr;margin-bottom:16px}
+@media(max-width:760px){.top{grid-template-columns:1fr}}
+#qr{display:flex;justify-content:center;padding:8px}
+#qr img,#qr canvas{max-width:100%;height:auto}
+.url{font-size:13px;color:var(--mut);word-break:break-all;text-align:center}
+.stats{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.stat{background:var(--teal2);border-radius:14px;padding:10px 16px;flex:1;min-width:130px}
+.stat b{display:block;font-size:30px;color:var(--teal)}
+button{font:inherit;border:0;border-radius:12px;padding:12px 18px;min-height:44px;background:var(--teal);color:#fff;cursor:pointer}
+button.sec{background:var(--teal2);color:var(--teal)}
+button.danger{background:#fde8e8;color:#b3262b}
+button:focus-visible{outline:3px solid #7cc9c4;outline-offset:2px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.gname{font-size:28px;font-weight:700}
+.bar{height:12px;background:#e8efed;border-radius:8px;overflow:hidden;margin:8px 0}
+.bar i{display:block;height:100%;border-radius:8px}
+.mut{color:var(--mut);font-size:15px}
+.lead{display:grid;gap:10px}
+.stu{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px}
+.stu .nm{font-weight:600;margin-bottom:6px}
+.dots{display:flex;gap:clamp(3px,1.4vw,9px);align-items:center}
+.dot{width:clamp(26px,8.2vw,40px);height:clamp(26px,8.2vw,40px);min-height:0;padding:0;border-radius:50%;background:#fff;border:2px solid #b9c9c5;flex:none}
+.dot.on{border-color:transparent}
+.c-r{background:var(--r)!important}.c-o{background:var(--o)!important}.c-y{background:var(--y)!important}.c-g{background:var(--g)!important}
+.sc{font-weight:700;min-width:48px;text-align:right}
+.hist{font-size:13px;color:var(--mut);margin-top:6px}
+.chip{display:inline-block;border-radius:8px;padding:1px 7px;margin:0 4px 2px 0;background:#eef3f1;color:var(--ink)}
+.rst{min-height:34px;padding:4px 10px;font-size:14px;margin-left:auto}
+.legend{display:flex;gap:10px;flex-wrap:wrap;font-size:14px;margin:12px 0}
+.legend span{display:flex;align-items:center;gap:6px}
+.legend i{width:16px;height:16px;border-radius:50%;display:inline-block;border:1px solid #b9c9c5}
+.big{display:grid;gap:12px;margin:20px 0}
+.big button{font-size:30px;padding:26px}
+select,input[type=text]{font:inherit;padding:10px;border:1px solid var(--line);border-radius:10px;min-height:44px;max-width:100%}
+table{border-collapse:collapse;width:100%;font-size:15px}
+th,td{border-bottom:1px solid var(--line);padding:8px;text-align:left}
+.tw{overflow-x:auto}
+.badge{border-radius:10px;padding:2px 10px;color:#fff;white-space:nowrap}
+.badge.c-y{color:#3b2f00}
+#toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 18px;border-radius:12px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:50;max-width:90vw}
+#toast.show{opacity:1}
+.modal{position:fixed;inset:0;background:rgba(23,51,46,.45);display:flex;align-items:center;justify-content:center;padding:16px;z-index:40}
+.modal .card{max-width:760px;width:100%;max-height:90vh;overflow:auto}
+textarea{width:100%;height:200px;font-family:monospace;font-size:13px}
+.stg{display:flex;gap:8px;align-items:center;margin:6px 0}
+.stg input{flex:1}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<div id="toast" role="status"></div>
+<script>
+/* ===== ДАННЫЕ: учитель может править списки здесь ===== */
+const GROUPS = {
+  1:{name:"1 ТОП",students:["Әмірқұл Нұрасыл","Едіге Райана","Жұмахан Мадина","Көкебаев Нұрали","Құсыман Нұриман","Пердебаева Хадиша","Тлеукен Ибрахим","Утегулова Аяна"]},
+  2:{name:"2 ТОП",students:["Әліқұл Ақерке","Ергеш Гаухар","Жұманазар Айару","Қанжарқан Нұрасыл","Молдашбек Еркеназ","Сержан Шарият","Чкалов Ерасыл"]},
+  3:{name:"3 ТОП",students:["Жанатбек Айару","Жұманқұл Бексұлтан","Қанатбек Данашым","Нұрболат Аяна","Сұлтан Нұрмахан","Төрехан Балауса","Үсен Заңғар"]}
+};
+const DEFAULT_STAGES=["Топтық жұмыс: Түсіндіру","Жұптық жұмыс «Ойлан – жұптас – бөліс»","Деңгейлік тапсырмалар: «Білім баспалдағы»","Функционалдық тапсырма: «Білім шыңы»"];
+/* Онлайн синхрондау: Firebase Realtime Database сілтемесін осы жерге қойыңыз, мысалы "https://жоба-default-rtdb.firebaseio.com" */
+const DB_URL="https://top-baga-default-rtdb.asia-southeast1.firebasedatabase.app";
+const KEY="top-scoring-kk-v2";
+const ALL=[];Object.keys(GROUPS).forEach(g=>GROUPS[g].students.forEach((n,i)=>ALL.push({id:`g${g}s${i+1}`,g:+g,n:i+1,name:n})));
+
+/* ===== СОСТОЯНИЕ ===== */
+let S=load();
+function fresh(){return{stages:DEFAULT_STAGES.map((n,i)=>({id:"st"+(i+1),name:n,done:false})),cur:0,seq:DEFAULT_STAGES.length,scores:{}}}
+function load(){try{const s=JSON.parse(localStorage.getItem(KEY));if(s&&s.stages&&s.stages.length)return s}catch(e){}return fresh()}
+let netErr=false,lastRemote="";
+async function rq(p,m,b){const r=await fetch(DB_URL.replace(/\/$/,"")+"/"+p+".json",{method:m,body:b===undefined?undefined:JSON.stringify(b)});if(!r.ok)throw 0;return r.json()}
+function net(f){if(!DB_URL)return;f().then(()=>{if(netErr){netErr=false;render()}}).catch(()=>{if(!netErr){netErr=true;render()}})}
+function pushMeta(){net(()=>rq("meta","PUT",{stages:S.stages,cur:S.cur,seq:S.seq}))}
+function pushScores(){net(()=>rq("scores","PUT",S.scores))}
+function save(msg,mode){try{localStorage.setItem(KEY,JSON.stringify(S));if(msg)toast(msg)}catch(e){toast("Сақталмады: браузер жады қолжетімсіз")}
+  if(mode&&mode.includes("m"))pushMeta();if(mode&&mode.includes("s"))pushScores()}
+async function poll(){if(!DB_URL)return;try{const d=await rq("","GET")||{};
+  if(!d.meta){pushMeta()}else{S.stages=d.meta.stages||S.stages;S.cur=d.meta.cur||0;S.seq=d.meta.seq||S.seq}
+  S.scores=d.scores||{};const sig=JSON.stringify([S.stages,S.cur,S.scores]);
+  try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}
+  const busy=document.getElementById("modal")||(document.activeElement&&document.activeElement.tagName==="SELECT");
+  if(netErr){netErr=false;lastRemote=""}
+  if(sig!==lastRemote&&!busy){lastRemote=sig;render()}}catch(e){if(!netErr){netErr=true;render()}}}
+if(DB_URL){poll();setInterval(poll,2500)}
+window.addEventListener("storage",e=>{if(e.key===KEY){S=load();render()}});
+function toast(m){const t=document.getElementById("toast");t.textContent=m;t.classList.add("show");clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove("show"),1800)}
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
+
+/* ===== ЛОГИКА БАЛЛОВ ===== */
+function cls(v){return v>=9?"c-g":v>=6?"c-y":v>=4?"c-o":v>=1?"c-r":""}
+function lvl(v){return v>=9?"Өте жақсы":v>=6?"Жақсы":v>=4?"Қанағаттанарлық":v>=1?"Қанағаттанарлықсыз":"Бағаланбаған"}
+function get(id,st){return (S.scores[id]||{})[st]||0}
+function setScore(id,st,v){S.scores[id]=S.scores[id]||{};if(v>0)S.scores[id][st]=v;else delete S.scores[id][st]}
+function sendScore(id,st,v){net(()=>rq(`scores/${id}/${st}`,v>0?"PUT":"DELETE",v>0?v:undefined))}
+function stat(id){const e=Object.entries(S.scores[id]||{}).filter(([k])=>S.stages.some(s=>s.id===k));const sum=e.reduce((a,[,v])=>a+v,0);return{sum,cnt:e.length,avg:e.length?sum/e.length:0}}
+function gstat(g){const st=ALL.filter(s=>s.g==g).map(s=>stat(s.id));const r=st.filter(x=>x.cnt>0);return{avg:r.length?r.reduce((a,x)=>a+x.avg,0)/r.length:0,rated:r.length,total:st.length}}
+const f1=v=>(Math.round(v*10)/10).toString().replace(".",",");
+
+/* ===== МАРШРУТЫ ===== */
+let leaderStage=null;
+function route(){const h=location.hash.replace(/^#\/?/,"").split("/");return h}
+window.addEventListener("hashchange",()=>{leaderStage=null;render()});
+function baseUrl(){return location.href.split("#")[0]}
+function render(){const r=route();const app=document.getElementById("app");
+  if(r[0]==="leader"){app.innerHTML=r[1]&&GROUPS[r[1]]?leaderGroup(+r[1]):leaderPick()}
+  else{app.innerHTML=teacher();drawQR()}
+  window.scrollTo?0:0}
+function drawQR(){const el=document.getElementById("qr");if(!el||typeof QRCode==="undefined"){if(el)el.textContent="QR-код жүктелмеді (интернет жоқ)";return}
+  el.innerHTML="";new QRCode(el,{text:baseUrl()+"#/leader",width:260,height:260,correctLevel:QRCode.CorrectLevel.M})}
+function legend(){return `<div class="legend"><span><i></i>0 — бағаланбаған</span><span><i style="background:var(--r)"></i>1–3 қанағаттанарлықсыз</span><span><i style="background:var(--o)"></i>4–5 қанағаттанарлық</span><span><i style="background:var(--y)"></i>6–8 жақсы</span><span><i style="background:var(--g)"></i>9–10 өте жақсы</span></div>`}
+
+/* ===== ЭКРАН УЧИТЕЛЯ ===== */
+function teacher(){
+  const done=S.stages.filter(s=>s.done).length;
+  const gs=Object.keys(GROUPS).map(g=>({g,...gstat(g)}));
+  const rank=[...gs].sort((a,b)=>b.avg-a.avg);
+  const medal=g=>rank.findIndex(x=>x.g==g)+1;
+  return `
+  <h1>ОҚУШЫЛАРДЫ ИНТЕРАКТИВТІ БАҒАЛАУ</h1>
+  <p class="sub">QR-кодты сканерлеңіз, өз тобыңызды таңдаңыз және сабақтың әр кезеңінен кейін оқушылардың жұмысын бағалаңыз.</p>
+  <div class="banner">${DB_URL?(netErr?"<b>Байланыс қатесі.</b> Интернетті тексеріңіз: байланыс қалпына келгенде бағалар жаңарады.":"<b>Онлайн режим.</b> Бағалар барлық құрылғылар арасында нақты уақытта синхрондалады."):"<b>Автономды режим.</b> Бағалар осы құрылғының браузерінде сақталады және басқа телефондармен автоматты түрде синхрондалмайды."}</div>
+  <div class="top">
+    <div class="card"><div id="qr"></div><div class="url">${esc(baseUrl())}#/leader</div></div>
+    <div class="card">
+      <div class="stats">
+        <div class="stat"><b>${ALL.length}</b>оқушы</div>
+        <div class="stat"><b>${done}</b>кезең өтті, барлығы ${S.stages.length}</div>
+      </div>
+      <div class="row">
+        <button onclick="showResults()">Нәтижелерді көрсету</button>
+        <button class="sec" onclick="stagesEditor()">Сабақ кезеңдері</button>
+        <button class="sec" onclick="location.hash='#/leader'">Көшбасшы интерфейсін ашу</button>
+        <button class="danger" onclick="resetAll()">Бағаларды тазалау</button>
+      </div>
+      <h3>Топтардың жалпы рейтингі</h3>
+      ${rank.map((x,i)=>`<div class="row"><b style="width:28px">${i+1}.</b><span style="width:80px">${GROUPS[x.g].name}</span><div class="bar" style="flex:1"><i class="${cls(Math.round(x.avg))}" style="width:${x.avg*10}%;background:var(--teal)"></i></div><b>${x.rated?f1(x.avg):"—"}</b></div>`).join("")}
+      <div class="mut">Бағаланған оқушылардың орташа балы, ең жоғарысы 10.</div>
+    </div>
+  </div>
+  <div class="grid g3">${gs.map(x=>`<div class="card"><div class="gname">${GROUPS[x.g].name}</div>
+    <div class="mut">Рейтингтегі орны: ${medal(x.g)}</div>
+    <div class="bar"><i style="width:${x.avg*10}%;background:var(--teal)"></i></div>
+    <div><b style="font-size:32px">${x.rated?f1(x.avg):"—"}</b> <span class="mut">орташа балл</span></div>
+    <div class="mut">Бағаланған: ${x.rated} · бағасыз: ${x.total-x.rated} · барлығы: ${x.total}</div>
+    <div style="margin-top:10px"><button class="sec" onclick="location.hash='#/leader/${x.g}'">Топты бағалау</button></div></div>`).join("")}</div>
+  ${legend()}`;
+}
+
+/* ===== ИНТЕРФЕЙС ЛИДЕРА ===== */
+function leaderPick(){return `<div class="wrap" style="max-width:560px"><h1>ӨЗ ТОБЫҢЫЗДЫ ТАҢДАҢЫЗ</h1>
+  <div class="banner">${DB_URL?"Онлайн режим: өз тобыңызды таңдаңыз.":"Автономды режим: барлық топ осы құрылғыда қолжетімді."}</div>
+  <div class="big">${Object.keys(GROUPS).map(g=>`<button onclick="location.hash='#/leader/${g}'">${GROUPS[g].name}</button>`).join("")}</div>
+  <button class="sec" onclick="location.hash='#/'">Мұғалімнің басты экранына</button></div>`}
+
+function leaderGroup(g){
+  if(leaderStage===null||!S.stages.some(s=>s.id===leaderStage))leaderStage=S.stages[S.cur].id;
+  const st=S.stages.find(s=>s.id===leaderStage);const idx=S.stages.indexOf(st);
+  const list=ALL.filter(s=>s.g===g);
+  return `<div class="wrap" style="max-width:640px">
+  <div class="row"><div class="gname">${GROUPS[g].name}</div><span class="mut">оқушы: ${list.length}</span>
+  <button class="sec" style="margin-left:auto" onclick="location.hash='#/leader'">Топты таңдауға оралу</button></div>
+  <div class="card" style="margin:12px 0">
+    <div class="mut">${idx+1}-кезең / ${S.stages.length} · өтті: ${S.stages.filter(s=>s.done).length}</div>
+    <div style="font-size:22px;font-weight:700;margin:4px 0">${esc(st.name)} ${st.done?'<span class="chip" style="background:var(--g);color:#fff">аяқталды</span>':''}</div>
+    <div class="row"><select onchange="pickStage(this.value)" aria-label="Кезеңді таңдау">${S.stages.map((s,i)=>`<option value="${s.id}" ${s.id===st.id?"selected":""}>${i+1}. ${esc(s.name)}${s.done?" ✓":""}</option>`).join("")}</select>
+    <button onclick="finishStage('${st.id}')">Кезеңді аяқтау</button>
+    <button class="sec" onclick="nextStage()">Келесі кезең</button>
+    <button class="danger rst" style="margin-left:0" onclick="resetStage('${st.id}',${g})">Кезең бағаларын тазалау</button></div>
+  </div>
+  <p class="mut">Оқушының баллына сәйкес келетін шеңберді басыңыз.</p>
+  ${legend()}
+  <div class="lead">${list.map(s=>studentRow(s,st.id)).join("")}</div>
+  ${legend()}</div>`;
+}
+function studentRow(s,st){
+  const v=get(s.id,st),c=cls(v);
+  const hist=S.stages.map((x,i)=>x.id!==st&&get(s.id,x.id)?`<span class="chip">${i+1}-кезең: ${get(s.id,x.id)}</span>`:"").join("");
+  return `<div class="stu"><div class="nm">${s.n}. ${esc(s.name)}</div>
+  <div class="dots">${[...Array(10)].map((_,i)=>`<button class="dot ${i<v?"on "+c:""}" aria-label="${esc(s.name)}: ${i+1} балл" onclick="score('${s.id}','${st}',${i+1})"></button>`).join("")}
+  <span class="sc">${v}/10</span></div>
+  <div class="row"><span class="hist">${hist?"Басқа кезеңдер: "+hist:"Басқа кезеңдерде баға жоқ"}</span><button class="danger rst" onclick="score('${s.id}','${st}',0)">Тазалау</button></div></div>`}
+
+/* ===== ДЕЙСТВИЯ ===== */
+function score(id,st,v){setScore(id,st,v);save();sendScore(id,st,v);render()}
+function pickStage(id){leaderStage=id;render()}
+function finishStage(id){S.stages.find(s=>s.id===id).done=true;save("Кезең аяқталды және сақталды","m");render()}
+function nextStage(){const i=S.stages.findIndex(s=>s.id===leaderStage);S.stages[i].done=true;
+  if(i===S.stages.length-1){S.seq++;S.stages.push({id:"st"+S.seq+"x"+Date.now(),name:"Кезең "+(S.stages.length+1),done:false})}
+  S.cur=Math.max(S.cur,i+1);leaderStage=S.stages[i+1].id;save("Келесі кезеңге өттік","m");render()}
+function resetStage(id,g){const nm=S.stages.find(s=>s.id===id).name;
+  confirmBox(`«${nm}» кезеңінің ${GROUPS[g].name} тобындағы бағаларын тазалау керек пе?`,()=>{ALL.filter(s=>s.g===g).forEach(s=>setScore(s.id,id,0));save("Кезең бағалары тазаланды","s");render()})}
+function resetAll(){confirmBox("Барлық бағаларды шынымен жойғыңыз келе ме? Бұл әрекетті қайтару мүмкін емес.",()=>{S.scores={};S.stages.forEach(s=>s.done=false);S.cur=0;save("Барлық бағалар жойылды","ms");render()})}
+
+/* ===== ОКНА ===== */
+function modal(html){closeModal();const d=document.createElement("div");d.className="modal";d.id="modal";d.innerHTML=`<div class="card" role="dialog">${html}</div>`;d.addEventListener("click",e=>{if(e.target===d)closeModal()});document.body.appendChild(d)}
+function closeModal(){const m=document.getElementById("modal");if(m)m.remove()}
+function confirmBox(msg,fn){modal(`<p>${esc(msg)}</p><div class="row"><button class="danger" id="yes">Иә, жою</button><button class="sec" onclick="closeModal()">Бас тарту</button></div>`);document.getElementById("yes").onclick=()=>{closeModal();fn()}}
+
+function stagesEditor(){
+  modal(`<h2>Сабақ кезеңдері</h2><div id="sl">${S.stages.map((s,i)=>`<div class="stg"><b>${i+1}.</b><input type="text" value="${esc(s.name)}" onchange="renameStage('${s.id}',this.value)"><button class="danger" style="padding:6px 12px" onclick="delStage('${s.id}')">Жою</button></div>`).join("")}</div>
+  <div class="row"><button onclick="addStage()">Кезең қосу</button><button class="sec" onclick="closeModal();render()">Дайын</button></div>`)}
+function renameStage(id,v){v=v.trim();if(!v)return;S.stages.find(s=>s.id===id).name=v;save("Атауы сақталды","m")}
+function addStage(){S.seq++;S.stages.push({id:"st"+S.seq+"x"+Date.now(),name:"Кезең "+(S.stages.length+1),done:false});save("Кезең қосылды","m");stagesEditor()}
+function delStage(id){if(S.stages.length<2){toast("Кемінде бір кезең қалуы керек");return}
+  const st=S.stages.find(s=>s.id===id);
+  confirmBox(`«${st.name}» кезеңін барлық бағаларымен бірге жою керек пе?`,()=>{S.stages=S.stages.filter(s=>s.id!==id);Object.values(S.scores).forEach(o=>delete o[id]);S.cur=Math.min(S.cur,S.stages.length-1);save("Кезең жойылды","ms");stagesEditor()})}
+
+function showResults(){
+  const rows=ALL.map(s=>({s,...stat(s.id)}));
+  const gs=Object.keys(GROUPS).map(g=>({g,...gstat(g)})).sort((a,b)=>b.avg-a.avg);
+  modal(`<h2>Сабақ нәтижелері</h2>
+  <p>${gs.map((x,i)=>`<b>${i+1}. ${GROUPS[x.g].name}</b>: ${x.rated?f1(x.avg):"—"} (бағаланған ${x.rated}/${x.total}, бағасыздар ${x.total-x.rated})`).join("<br>")}</p>
+  <div class="tw"><table><tr><th>Оқушы</th><th>Топ</th>${S.stages.map((s,i)=>`<th title="${esc(s.name)}">${i+1}-кезең</th>`).join("")}<th>Жиынтық</th><th>Орташа</th><th>Деңгей</th></tr>
+  ${rows.map(r=>`<tr><td>${esc(r.s.name)}</td><td>${GROUPS[r.s.g].name}</td>${S.stages.map(st=>`<td>${get(r.s.id,st.id)||"–"}</td>`).join("")}<td>${r.sum}</td><td>${r.cnt?f1(r.avg):"–"}</td><td><span class="badge ${cls(Math.round(r.avg))}" ${r.cnt?"":'style="background:#9bb0ab"'}>${lvl(Math.round(r.avg))}</span></td></tr>`).join("")}</table></div>
+  <p class="mut">Орташа балл оқушы бағаланған кезеңдер бойынша ғана есептеледі.</p>
+  <div class="row"><button onclick="exportCSV()">CSV-ке экспорттау</button><button class="sec" onclick="closeModal()">Жабу</button></div>`)}
+
+function csvText(){
+  const q=v=>'"'+String(v).replace(/"/g,'""')+'"';
+  const head=["Топ","Оқушы",...S.stages.map(s=>s.name),"Жиынтық балл","Орташа балл","Деңгей"];
+  const lines=[head.map(q).join(";")];
+  ALL.forEach(s=>{const t=stat(s.id);lines.push([GROUPS[s.g].name,s.name,...S.stages.map(x=>get(s.id,x.id)||""),t.sum,t.cnt?f1(t.avg):"",lvl(Math.round(t.avg))].map(q).join(";"))});
+  return lines.join("\r\n")}
+function exportCSV(){
+  const txt=csvText();
+  modal(`<h2>CSV-ке экспорттау</h2><p class="mut">«Жүктеу» түймесін басыңыз; жүктелмесе, «Көшіру» арқылы мәтінді блокнотқа қойып, UTF-8 кодтауымен .csv ретінде сақтаңыз да, Excel-де ашыңыз.</p>
+  <textarea id="csv" readonly>${esc(txt)}</textarea>
+  <div class="row"><button onclick="dl()">Жүктеу</button><button onclick="cp()">Көшіру</button><button class="sec" onclick="showResults()">Артқа</button></div>`)}
+function dl(){try{const b=new Blob(["\ufeff"+csvText()],{type:"text/csv;charset=utf-8"});const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="results.csv";document.body.appendChild(a);a.click();a.remove();toast("Файл дайын")}catch(e){toast("Жүктеу қолжетімсіз — «Көшіру» түймесін қолданыңыз")}}
+function cp(){const t=document.getElementById("csv");t.select();try{navigator.clipboard.writeText(t.value).then(()=>toast("Көшірілді"),()=>{document.execCommand("copy");toast("Көшірілді")})}catch(e){document.execCommand("copy");toast("Көшірілді")}}
+
+render();
+</script>
+</body>
+</html>
